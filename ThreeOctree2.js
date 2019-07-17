@@ -1,25 +1,10 @@
-/*!
- *
- * threeoctree.js (r60) / https://github.com/collinhover/threeoctree
- * threeoctree2.js (r106) / https://github.com/collinhover/threeoctree
- * (sparse) dynamic 3D spatial representation structure for fast searches.
- *
- * @author Collin Hover / http://collinhover.com/
- * @author Jaeyoon Jeong
- * based on Dynamic Octree by Piko3D @ http://www.piko3d.com/ and Octree by
- * Marek Pawlowski @ pawlowski.it
- *
- */
-// import * as THREE from 'three';
 
 export let addOctreeToThree = function(THREE) {
   'use strict';
   /*===================================================
   utility
   =====================================================*/
-  function isNumber(n) {
-    return !isNaN(n) && isFinite(n);
-  }
+  function isNumber(n) { return !isNaN(n) && isFinite(n); }
   function isArray(target) {
     return Object.prototype.toString.call(target) === '[object Array]';
   }
@@ -54,23 +39,23 @@ export let addOctreeToThree = function(THREE) {
     this.INDEX_INSIDE_CROSS = -1;
     this.INDEX_OUTSIDE_OFFSET = 2;
     this.INDEX_OUTSIDE_POS_X = isNumber(parameters.INDEX_OUTSIDE_POS_X) ?
-        parameters.INDEX_OUTSIDE_POS_X :
-        0;
+                                   parameters.INDEX_OUTSIDE_POS_X :
+                                   0;
     this.INDEX_OUTSIDE_NEG_X = isNumber(parameters.INDEX_OUTSIDE_NEG_X) ?
-        parameters.INDEX_OUTSIDE_NEG_X :
-        1;
+                                   parameters.INDEX_OUTSIDE_NEG_X :
+                                   1;
     this.INDEX_OUTSIDE_POS_Y = isNumber(parameters.INDEX_OUTSIDE_POS_Y) ?
-        parameters.INDEX_OUTSIDE_POS_Y :
-        2;
+                                   parameters.INDEX_OUTSIDE_POS_Y :
+                                   2;
     this.INDEX_OUTSIDE_NEG_Y = isNumber(parameters.INDEX_OUTSIDE_NEG_Y) ?
-        parameters.INDEX_OUTSIDE_NEG_Y :
-        3;
+                                   parameters.INDEX_OUTSIDE_NEG_Y :
+                                   3;
     this.INDEX_OUTSIDE_POS_Z = isNumber(parameters.INDEX_OUTSIDE_POS_Z) ?
-        parameters.INDEX_OUTSIDE_POS_Z :
-        4;
+                                   parameters.INDEX_OUTSIDE_POS_Z :
+                                   4;
     this.INDEX_OUTSIDE_NEG_Z = isNumber(parameters.INDEX_OUTSIDE_NEG_Z) ?
-        parameters.INDEX_OUTSIDE_NEG_Z :
-        5;
+                                   parameters.INDEX_OUTSIDE_NEG_Z :
+                                   5;
     this.INDEX_OUTSIDE_MAP = [];
     this.INDEX_OUTSIDE_MAP[this.INDEX_OUTSIDE_POS_X] =
         {index: this.INDEX_OUTSIDE_POS_X, count: 0, x: 1, y: 0, z: 0};
@@ -95,7 +80,7 @@ export let addOctreeToThree = function(THREE) {
     // pass scene to see octree structure
     this.scene = parameters.scene;
     if (this.scene) {
-      this.visualGeometry = new THREE.CubeGeometry(1, 1, 1);
+      this.visualGeometry = new THREE.BoxGeometry(1, 1, 1);
       this.visualMaterial = new THREE.MeshBasicMaterial(
           {color: 0xFF0066, wireframe: true, wireframeLinewidth: 1});
     }
@@ -112,8 +97,8 @@ export let addOctreeToThree = function(THREE) {
         isNumber(parameters.overlapPct) ? parameters.overlapPct : 0.15;
     this.undeferred = parameters.undeferred || false;
     this.root = parameters.root instanceof THREE.OctreeNode ?
-        parameters.root :
-        new THREE.OctreeNode(parameters);
+                    parameters.root :
+                    new THREE.OctreeNode(parameters);
   };
   THREE.Octree.prototype = {
     update: function() {
@@ -137,7 +122,7 @@ export let addOctreeToThree = function(THREE) {
       }
     },
     addDeferred: function(object, options) {
-      let i, l, geometry, faces, useFaces, vertices, useVertices, objectData;
+      let i, l, geometry, faces, useFaces, vertices, useVertices;
       // ensure object is not object data
       if (object instanceof THREE.OctreeObjectData) {
         object = object.object;
@@ -233,7 +218,7 @@ export let addOctreeToThree = function(THREE) {
       }
     },
     rebuild: function() {
-      let i, l, node, object, objectData, indexOctant, indexOctantLast,
+      let i, l, node, objectData, indexOctant, indexOctantLast,
           objectsUpdate = [];
       // check all object data for changes in position
       // assumes all object matrices are up to date
@@ -365,18 +350,10 @@ export let addOctreeToThree = function(THREE) {
         this.root.updateProperties();
       }
     },
-    getDepthEnd: function() {
-      return this.root.getDepthEnd();
-    },
-    getNodeCountEnd: function() {
-      return this.root.getNodeCountEnd();
-    },
-    getObjectCountEnd: function() {
-      return this.root.getObjectCountEnd();
-    },
-    toConsole: function() {
-      this.root.toConsole();
-    }
+    getDepthEnd: function() { return this.root.getDepthEnd(); },
+    getNodeCountEnd: function() { return this.root.getNodeCountEnd(); },
+    getObjectCountEnd: function() { return this.root.getObjectCountEnd(); },
+    toConsole: function() { this.root.toConsole(); }
   };
   /*===================================================
   object data
@@ -438,40 +415,23 @@ export let addOctreeToThree = function(THREE) {
         }
       }
       this.radius = this.radius *
-          Math.max(
-              this.object.scale.x, this.object.scale.y, this.object.scale.z);
+                    Math.max(this.object.scale.x, this.object.scale.y,
+                             this.object.scale.z);
     },
     getFace3BoundingRadius: function(object, face) {
       let geometry = object.geometry || object, vertices = geometry.vertices;
-
       // let centroid = face.centroid;
       let va = vertices[face.a];
       let vb = vertices[face.b], vc = vertices[face.c];
-
       let centroid = va.clone();
       centroid.add(vb);
       centroid.add(vc);
       centroid.divideScalar(3.0);
-
       let centroidToVert = this.utilVec31FaceBounds, radius;
       // centroid.addVectors(va, vb).add(vc).divideScalar(3);
-      radius = Math.max(
-          centroidToVert.subVectors(centroid, va).length(),
-          centroidToVert.subVectors(centroid, vb).length(),
-          centroidToVert.subVectors(centroid, vc).length());
-      return radius;
-    },
-    getFace4BoundingRadius: function(object, face) {
-      let geometry = object.geometry || object, vertices = geometry.vertices,
-          centroid = face.centroid, va = vertices[face.a],
-          vb = vertices[face.b], vc = vertices[face.c], vd = vertices[face.d],
-          centroidToVert = this.utilVec31FaceBounds, radius;
-      centroid.addVectors(va, vb).add(vc).add(vd).divideScalar(4);
-      radius = Math.max(
-          centroidToVert.subVectors(centroid, va).length(),
-          centroidToVert.subVectors(centroid, vb).length(),
-          centroidToVert.subVectors(centroid, vc).length(),
-          centroidToVert.subVectors(centroid, vd).length());
+      radius = Math.max(centroidToVert.subVectors(centroid, va).length(),
+                        centroidToVert.subVectors(centroid, vb).length(),
+                        centroidToVert.subVectors(centroid, vc).length());
       return radius;
     }
   };
@@ -495,8 +455,8 @@ export let addOctreeToThree = function(THREE) {
     // basic properties
     this.id = this.tree.nodeCount++;
     this.position = parameters.position instanceof THREE.Vector3 ?
-        parameters.position :
-        new THREE.Vector3();
+                        parameters.position :
+                        new THREE.Vector3();
     this.radius = parameters.radius > 0 ? parameters.radius : 1;
     this.indexOctant = parameters.indexOctant;
     this.depth = 0;
@@ -516,9 +476,8 @@ export let addOctreeToThree = function(THREE) {
     if (this.tree.scene) {
       this.visual =
           new THREE.Mesh(this.tree.visualGeometry, this.tree.visualMaterial);
-      this.visual.scale.set(
-          this.radiusOverlap * 2, this.radiusOverlap * 2,
-          this.radiusOverlap * 2);
+      this.visual.scale.set(this.radiusOverlap * 2, this.radiusOverlap * 2,
+                            this.radiusOverlap * 2);
       this.visual.position.copy(this.position);
       this.tree.scene.add(this.visual);
     }
@@ -782,7 +741,7 @@ export let addOctreeToThree = function(THREE) {
     },
     expand: function(objects, octants) {
       let i, l, object, objectsRemaining, objectsExpand, indexOctant,
-          flagsOutside, indexOutside, indexOctantInverse,
+          flagsOutside, indexOctantInverse,
           iom = this.tree.INDEX_OUTSIDE_MAP, indexOutsideCounts,
           infoIndexOutside1, infoIndexOutside2, infoIndexOutside3,
           indexOutsideBitwise1, indexOutsideBitwise2, infoPotential1,
@@ -839,9 +798,7 @@ export let addOctreeToThree = function(THREE) {
           // shallow copy index outside map
           indexOutsideCounts = iom.slice(0);
           // sort outside index count so highest is first
-          indexOutsideCounts.sort(function(a, b) {
-            return b.count - a.count;
-          });
+          indexOutsideCounts.sort(function(a, b) { return b.count - a.count; });
           // get highest outside indices
           // first is first
           infoIndexOutside1 = indexOutsideCounts[0];
@@ -852,8 +809,8 @@ export let addOctreeToThree = function(THREE) {
           infoPotential2 = indexOutsideCounts[2];
           infoIndexOutside2 =
               (infoPotential1.index | 1) !== indexOutsideBitwise1 ?
-              infoPotential1 :
-              infoPotential2;
+                  infoPotential1 :
+                  infoPotential2;
           indexOutsideBitwise2 = infoIndexOutside2.index | 1;
           // third is ( one of next three bitwise OR 1 ) that is not opposite of
           // ( first or second bitwise OR 1 )
@@ -862,13 +819,14 @@ export let addOctreeToThree = function(THREE) {
           infoPotential3 = indexOutsideCounts[4];
           indexPotentialBitwise1 = infoPotential1.index | 1;
           indexPotentialBitwise2 = infoPotential2.index | 1;
-          infoIndexOutside3 = indexPotentialBitwise1 !== indexOutsideBitwise1 &&
-                  indexPotentialBitwise1 !== indexOutsideBitwise2 ?
-              infoPotential1 :
-              indexPotentialBitwise2 !== indexOutsideBitwise1 &&
-                      indexPotentialBitwise2 !== indexOutsideBitwise2 ?
-              infoPotential2 :
-              infoPotential3;
+          infoIndexOutside3 =
+              indexPotentialBitwise1 !== indexOutsideBitwise1 &&
+                      indexPotentialBitwise1 !== indexOutsideBitwise2 ?
+                  infoPotential1 :
+                  indexPotentialBitwise2 !== indexOutsideBitwise1 &&
+                          indexPotentialBitwise2 !== indexOutsideBitwise2 ?
+                  infoPotential2 :
+                  infoPotential3;
           // get this octant normal based on outside octant indices
           octantX =
               infoIndexOutside1.x + infoIndexOutside2.x + infoIndexOutside3.x;
@@ -886,17 +844,17 @@ export let addOctreeToThree = function(THREE) {
           radius = this.radius;
           // radius of parent comes from reversing overlap of this, unless
           // overlap percent is 0
-          radiusParent = this.tree.overlapPct > 0 ? overlap /
-                  ((0.5 * this.tree.overlapPct) * (1 + this.tree.overlapPct)) :
-                                                    radius * 2;
+          radiusParent = this.tree.overlapPct > 0 ?
+                             overlap / ((0.5 * this.tree.overlapPct) *
+                                        (1 + this.tree.overlapPct)) :
+                             radius * 2;
           overlapParent = radiusParent * this.tree.overlapPct;
           // parent offset is difference between radius + overlap of parent and
           // child
           radiusOffset = (radiusParent + overlapParent) - (radius + overlap);
-          offset.set(
-              indexOctant & 1 ? radiusOffset : -radiusOffset,
-              indexOctant & 2 ? radiusOffset : -radiusOffset,
-              indexOctant & 4 ? radiusOffset : -radiusOffset);
+          offset.set(indexOctant & 1 ? radiusOffset : -radiusOffset,
+                     indexOctant & 2 ? radiusOffset : -radiusOffset,
+                     indexOctant & 4 ? radiusOffset : -radiusOffset);
           position = new THREE.Vector3().addVectors(this.position, offset);
           // parent
           parent = new THREE.OctreeNode(
@@ -940,7 +898,7 @@ export let addOctreeToThree = function(THREE) {
       }
     },
     merge: function(nodes) {
-      let i, l, j, k, node;
+      let i, l, node;
       // handle nodes
       nodes = toArray(nodes);
       for (i = 0, l = nodes.length; i < l; i++) {
@@ -1004,7 +962,7 @@ export let addOctreeToThree = function(THREE) {
       nodeRoot.checkContract();
     },
     getOctantIndex: function(objectData) {
-      let i, l, positionObj, radiusObj,
+      let positionObj, radiusObj,
           position = this.position, radiusOverlap = this.radiusOverlap,
           overlap = this.overlap, deltaX, deltaY, deltaZ, distX, distY, distZ,
           distance, indexOctant = 0;
@@ -1031,18 +989,18 @@ export let addOctreeToThree = function(THREE) {
       if (distance + radiusObj > radiusOverlap) {
         // x
         if (distX + radiusObj > radiusOverlap) {
-          indexOctant = indexOctant ^
-              (deltaX > 0 ? this.tree.FLAG_POS_X : this.tree.FLAG_NEG_X);
+          indexOctant = indexOctant ^ (deltaX > 0 ? this.tree.FLAG_POS_X :
+                                                    this.tree.FLAG_NEG_X);
         }
         // y
         if (distY + radiusObj > radiusOverlap) {
-          indexOctant = indexOctant ^
-              (deltaY > 0 ? this.tree.FLAG_POS_Y : this.tree.FLAG_NEG_Y);
+          indexOctant = indexOctant ^ (deltaY > 0 ? this.tree.FLAG_POS_Y :
+                                                    this.tree.FLAG_NEG_Y);
         }
         // z
         if (distZ + radiusObj > radiusOverlap) {
-          indexOctant = indexOctant ^
-              (deltaZ > 0 ? this.tree.FLAG_POS_Z : this.tree.FLAG_NEG_Z);
+          indexOctant = indexOctant ^ (deltaZ > 0 ? this.tree.FLAG_POS_Z :
+                                                    this.tree.FLAG_NEG_Z);
         }
         objectData.indexOctant = -indexOctant - this.tree.INDEX_OUTSIDE_OFFSET;
         return objectData.indexOctant;
@@ -1139,15 +1097,15 @@ export let addOctreeToThree = function(THREE) {
           t4 = (this.top - origin.y) * directionPct.y,
           t5 = (this.back - origin.z) * directionPct.z,
           t6 = (this.front - origin.z) * directionPct.z,
-          tmax = Math.min(
-              Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6)),
+          tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)),
+                          Math.max(t5, t6)),
           tmin;
       // ray would intersect in reverse direction, i.e. this is behind ray
       if (tmax < 0) {
         return false;
       }
-      tmin = Math.max(
-          Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
+      tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)),
+                      Math.min(t5, t6));
       // if tmin > tmax or tmin > ray distance, ray doesn't intersect AABB
       if (tmin > tmax || tmin > distance) {
         return false;
@@ -1204,17 +1162,16 @@ export let addOctreeToThree = function(THREE) {
     toConsole: function(space) {
       let i, l, node, spaceAddition = '   ';
       space = typeof space === 'string' ? space : spaceAddition;
-      console.log(
-          (this.parent ? space + ' octree NODE > ' : ' octree ROOT > '), this,
-          ' // id: ', this.id, ' // indexOctant: ', this.indexOctant,
-          ' // position: ', this.position.x, this.position.y, this.position.z,
-          ' // radius: ', this.radius, ' // depth: ', this.depth);
-      console.log(
-          (this.parent ? space + ' ' : ' '), '+ objects ( ',
-          this.objects.length, ' ) ', this.objects);
-      console.log(
-          (this.parent ? space + ' ' : ' '), '+ children ( ',
-          this.nodesIndices.length, ' )', this.nodesIndices, this.nodesByIndex);
+      console.log((this.parent ? space + ' octree NODE > ' : ' octree ROOT > '),
+                  this, ' // id: ', this.id, ' // indexOctant: ',
+                  this.indexOctant, ' // position: ', this.position.x,
+                  this.position.y, this.position.z, ' // radius: ', this.radius,
+                  ' // depth: ', this.depth);
+      console.log((this.parent ? space + ' ' : ' '), '+ objects ( ',
+                  this.objects.length, ' ) ', this.objects);
+      console.log((this.parent ? space + ' ' : ' '), '+ children ( ',
+                  this.nodesIndices.length, ' )', this.nodesIndices,
+                  this.nodesByIndex);
       for (i = 0, l = this.nodesIndices.length; i < l; i++) {
         node = this.nodesByIndex[this.nodesIndices[i]];
         node.toConsole(space + spaceAddition);
@@ -1224,8 +1181,8 @@ export let addOctreeToThree = function(THREE) {
   /*===================================================
   raycaster additional functionality
   =====================================================*/
-  THREE.Raycaster.prototype.intersectOctreeObject = function(
-      object, recursive) {
+  THREE.Raycaster.prototype.intersectOctreeObject = function(object,
+                                                             recursive) {
     let intersects, octreeObject, facesAll, facesSearch;
     if (object.object instanceof THREE.Object3D) {
       octreeObject = object;
@@ -1247,16 +1204,14 @@ export let addOctreeToThree = function(THREE) {
     }
     return intersects;
   };
-  THREE.Raycaster.prototype.intersectOctreeObjects = function(
-      objects, recursive) {
+  THREE.Raycaster.prototype.intersectOctreeObjects = function(objects,
+                                                              recursive) {
     let i, il, intersects = [];
     for (i = 0, il = objects.length; i < il; i++) {
       intersects =
           intersects.concat(this.intersectOctreeObject(objects[i], recursive));
     }
-    intersects.sort(function(a, b) {
-      return a.distance - b.distance;
-    });
+    intersects.sort(function(a, b) { return a.distance - b.distance; });
     return intersects;
   };
 };

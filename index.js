@@ -187,7 +187,7 @@ function render() {
 }
 
 function modifyOctree(
-    geometry, material, useFaces, randomPosition?, randomRotation?, randomScale?
+    geometry, material, useFaces, randomPosition, randomRotation, randomScale
 ) {
   let mesh;
   if (geometry) {
