@@ -10,7 +10,7 @@
     "parcel-plugin-asset-copier": "^1.0.0"
   },
   "dependencies": {
-    "three": "^0.106.2"
+    "three": "^0.137.0"
   },
   "assetsPath": "./app",
   "scripts": {
